@@ -98,10 +98,25 @@ def joinFactors(factors):
                     "\nappear in more than one input factor.\n" + 
                     "Input factors: \n" +
                     "\n".join(map(str, factors)))
+    newFactor = factors[0]
+    for factor in factors[1:]:
+        newFactor = joinTwoFactors(newFactor,factor)
+    return newFactor
 
-
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+def joinTwoFactors(factor1,factor2):
+    conditionedVariables = set(factor1.conditionedVariables() + factor2.conditionedVariables())
+    unconditionedVariables = set(factor1.unconditionedVariables() + factor2.unconditionedVariables())
+    conditionedVariables = conditionedVariables - unconditionedVariables
+    newFactor = Factor(list(unconditionedVariables),list(conditionedVariables),factor1.variableDomainsDict())
+    for assignment in newFactor.getAllPossibleAssignmentDicts():
+        variables1 = factor1.unconditionedVariables()+factor1.conditionedVariables()
+        assignment1 = {key:value for key,value in assignment.items() if key in variables1}
+        prob1 = factor1.getProbability(assignment1)
+        variables2 = factor2.unconditionedVariables()+factor2.conditionedVariables()
+        assignment2 = {key:value for key,value in assignment.items() if key in variables2}
+        prob2 = factor2.getProbability(assignment2)
+        newFactor.setProbability(assignment,prob1*prob2)
+    return newFactor
 
 
 def eliminateWithCallTracking(callTrackingList=None):
