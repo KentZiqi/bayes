@@ -164,8 +164,22 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "eliminationVariable:" + str(eliminationVariable) + "\n" +\
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        tempProbTable = dict()
+        allAssignments = factor.getAllPossibleAssignmentDicts()
+        for assignment in allAssignments:
+            prunedAssignment = {key:value for key,value in assignment.items() if key != eliminationVariable}
+            prunedAssignment = frozenset(prunedAssignment.items())
+            if prunedAssignment not in tempProbTable:
+                tempProbTable[prunedAssignment] = 0
+            print(prunedAssignment)
+            tempProbTable[prunedAssignment] += factor.getProbability(assignment)
+        unconditioned = factor.unconditionedVariables()
+        unconditioned.remove(eliminationVariable)
+        newFactor = Factor(unconditioned, factor.conditionedVariables(),factor.variableDomainsDict())
+        for assignment in tempProbTable:
+            defrozenAssignment = dict(assignment)
+            newFactor.setProbability(defrozenAssignment,tempProbTable[assignment])
+        return newFactor
 
     return eliminate
 
@@ -219,6 +233,6 @@ def normalize(factor):
                             "so that total probability will sum to 1\n" + 
                             str(factor))
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
 
