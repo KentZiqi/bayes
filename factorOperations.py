@@ -15,6 +15,7 @@
 from bayesNet import Factor
 import operator as op
 import util
+from copy import deepcopy
 
 def joinFactorsByVariableWithCallTracking(callTrackingList=None):
 
@@ -225,6 +226,7 @@ def normalize(factor):
 
     # typecheck portion
     variableDomainsDict = factor.variableDomainsDict()
+    singleVariables = {key for key,value in variableDomainsDict.items() if len(variableDomainsDict[key])==1}
     for conditionedVariable in factor.conditionedVariables():
         if len(variableDomainsDict[conditionedVariable]) > 1:
             print "Factor failed normalize typecheck: ", factor
@@ -232,7 +234,19 @@ def normalize(factor):
                             "assignment of the \n" + "conditional variables, " + \
                             "so that total probability will sum to 1\n" + 
                             str(factor))
-
+    allAssignments = factor.getAllPossibleAssignmentDicts()
+    probSum = 0
+    for assignment in allAssignments:
+        probSum += factor.getProbability(assignment)
+    uv, cv = factor.unconditionedVariables(), factor.conditionedVariables()
+    for u in uv:
+        if u in singleVariables:
+            uv.remove(u)
+            cv.append(u)
+    newFactor = Factor(uv, cv,variableDomainsDict)
+    for assignment in allAssignments:
+        newFactor.setProbability(assignment,factor.getProbability(assignment)/probSum)
+    return newFactor
 
 
 
