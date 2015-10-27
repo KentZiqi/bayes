@@ -54,7 +54,9 @@ class ReflexPowerChoosingAgent(ReflexPowerAgent):
         Your powers dictionary should contain exactly one 
         entry with a value of 1 and two entries with values of 0.
         """
-        powers = {}
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-        return powers
+        if inferredGhostPowers['speed']:
+            return {'speed': 0, 'blast': 1, 'laser': 0}
+        if inferredGhostPowers['blast']:
+            return {'speed': 0, 'blast': 0, 'laser': 1}
+        if inferredGhostPowers['laser']:
+            return {'speed': 1, 'blast': 0, 'laser': 0}

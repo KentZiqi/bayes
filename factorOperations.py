@@ -227,7 +227,6 @@ def normalize(factor):
     # typecheck portion
     variableDomainsDict = factor.variableDomainsDict()
     singleVariables = {key for key,value in variableDomainsDict.items() if len(variableDomainsDict[key])==1}
-    print(singleVariables)
     for conditionedVariable in factor.conditionedVariables():
         if len(variableDomainsDict[conditionedVariable]) > 1:
             print "Factor failed normalize typecheck: ", factor
