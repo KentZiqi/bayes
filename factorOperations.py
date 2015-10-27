@@ -227,6 +227,7 @@ def normalize(factor):
     # typecheck portion
     variableDomainsDict = factor.variableDomainsDict()
     singleVariables = {key for key,value in variableDomainsDict.items() if len(variableDomainsDict[key])==1}
+    print(singleVariables)
     for conditionedVariable in factor.conditionedVariables():
         if len(variableDomainsDict[conditionedVariable]) > 1:
             print "Factor failed normalize typecheck: ", factor
@@ -240,23 +241,13 @@ def normalize(factor):
     for assignment in allAssignments:
         probSum += factor.getProbability(assignment)
     uv, cv = factor.unconditionedVariables(), factor.conditionedVariables()
+    nuv = []
     for unconditional in uv:
-        if unconditional in singleVariables:
-            uv.remove(unconditional)
+        if unconditional not in singleVariables:
+            nuv.append(unconditional)
+        else:
             cv.append(unconditional)
-    for unconditional in uv:
-        if unconditional in singleVariables:
-            uv.remove(unconditional)
-            cv.append(unconditional)
-    for unconditional in uv:
-        if unconditional in singleVariables:
-            uv.remove(unconditional)
-            cv.append(unconditional)
-    for unconditional in uv:
-        if unconditional in singleVariables:
-            uv.remove(unconditional)
-            cv.append(unconditional)
-    newFactor = Factor(uv, cv,variableDomainsDict)
+    newFactor = Factor(nuv, cv,variableDomainsDict)
     for assignment in allAssignments:
         newFactor.setProbability(assignment,factor.getProbability(assignment)/probSum)
     return newFactor
