@@ -23,16 +23,18 @@
 # Do not include evidence variables.
 
 def question5a():
-    ignoredVariables = []
+    ignoredVariables = ['W','G']
     # Example solution : ignoredVariables = ['E', 'G'] (order does not matter so ['G','E'] is also the same)
     return ignoredVariables
 
 def question5b():
-    ignoredVariables = []
+    ignoredVariables = ['A','I','H']
     return ignoredVariables
 
 def question5c():
-    ignoredVariables = []
+    ignoredVariables = ['X1','X2','X3','X4','X5','X6',
+                        'Y1','Y2','Y3','Y4','Y5','Y6',
+                        'Y7','Y8','Y13','Y12','Y14']
     return ignoredVariables
 
 
