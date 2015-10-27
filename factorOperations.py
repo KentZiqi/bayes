@@ -105,15 +105,15 @@ def joinFactors(factors):
     return newFactor
 
 def joinTwoFactors(factor1,factor2):
-    conditionedVariables = set(factor1.conditionedVariables() + factor2.conditionedVariables())
-    unconditionedVariables = set(factor1.unconditionedVariables() + factor2.unconditionedVariables())
+    conditionedVariables = set(factor1.conditionedVariables()) | set(factor2.conditionedVariables())
+    unconditionedVariables = set(factor1.unconditionedVariables()) | set(factor2.unconditionedVariables())
     conditionedVariables = conditionedVariables - unconditionedVariables
     newFactor = Factor(list(unconditionedVariables),list(conditionedVariables),factor1.variableDomainsDict())
     for assignment in newFactor.getAllPossibleAssignmentDicts():
-        variables1 = factor1.unconditionedVariables()+factor1.conditionedVariables()
+        variables1 = set(factor1.unconditionedVariables()) | set(factor1.conditionedVariables())
         assignment1 = {key:value for key,value in assignment.items() if key in variables1}
         prob1 = factor1.getProbability(assignment1)
-        variables2 = factor2.unconditionedVariables()+factor2.conditionedVariables()
+        variables2 = set(factor2.unconditionedVariables()) | set(factor2.conditionedVariables())
         assignment2 = {key:value for key,value in assignment.items() if key in variables2}
         prob2 = factor2.getProbability(assignment2)
         newFactor.setProbability(assignment,prob1*prob2)
@@ -165,6 +165,10 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "eliminationVariable:" + str(eliminationVariable) + "\n" +\
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
+        unconditioned = factor.unconditionedVariables()
+        unconditioned.remove(eliminationVariable)
+        newFactor = Factor(unconditioned, factor.conditionedVariables(),factor.variableDomainsDict())
+
         tempProbTable = dict()
         allAssignments = factor.getAllPossibleAssignmentDicts()
         for assignment in allAssignments:
@@ -172,11 +176,7 @@ def eliminateWithCallTracking(callTrackingList=None):
             prunedAssignment = frozenset(prunedAssignment.items())
             if prunedAssignment not in tempProbTable:
                 tempProbTable[prunedAssignment] = 0
-            print(prunedAssignment)
             tempProbTable[prunedAssignment] += factor.getProbability(assignment)
-        unconditioned = factor.unconditionedVariables()
-        unconditioned.remove(eliminationVariable)
-        newFactor = Factor(unconditioned, factor.conditionedVariables(),factor.variableDomainsDict())
         for assignment in tempProbTable:
             defrozenAssignment = dict(assignment)
             newFactor.setProbability(defrozenAssignment,tempProbTable[assignment])
@@ -234,15 +234,28 @@ def normalize(factor):
                             "assignment of the \n" + "conditional variables, " + \
                             "so that total probability will sum to 1\n" + 
                             str(factor))
+
     allAssignments = factor.getAllPossibleAssignmentDicts()
     probSum = 0
     for assignment in allAssignments:
         probSum += factor.getProbability(assignment)
     uv, cv = factor.unconditionedVariables(), factor.conditionedVariables()
-    for u in uv:
-        if u in singleVariables:
-            uv.remove(u)
-            cv.append(u)
+    for unconditional in uv:
+        if unconditional in singleVariables:
+            uv.remove(unconditional)
+            cv.append(unconditional)
+    for unconditional in uv:
+        if unconditional in singleVariables:
+            uv.remove(unconditional)
+            cv.append(unconditional)
+    for unconditional in uv:
+        if unconditional in singleVariables:
+            uv.remove(unconditional)
+            cv.append(unconditional)
+    for unconditional in uv:
+        if unconditional in singleVariables:
+            uv.remove(unconditional)
+            cv.append(unconditional)
     newFactor = Factor(uv, cv,variableDomainsDict)
     for assignment in allAssignments:
         newFactor.setProbability(assignment,factor.getProbability(assignment)/probSum)
