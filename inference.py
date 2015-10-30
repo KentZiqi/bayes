@@ -261,11 +261,33 @@ def inferenceByLikelihoodWeightingSamplingRandomSource(randomSource=None):
         BayesNet.getCPT
         BayesNet.linearizeVariables
         """
-
         sampleFromFactor = sampleFromFactorRandomSource(randomSource)
+        sampleFrequency = dict()
+        for i in range(0,numSamples):
+            sample = dict()
+            weight = 1.0
+            for variable in bayesNet.linearizeVariables():
+                CPT = bayesNet.getCPT(variable)
+                if variable in evidenceDict:
+                    variableSample = {variable:evidenceDict[variable]}
+                    sample = dict(sample.items()+variableSample.items())
+                    weight = weight * CPT.getProbability(sample)
+                else:
+                    variableSample = sampleFromFactor(CPT,sample)
+                    sample = dict(sample.items()+variableSample.items())
+            sample = (sample, weight)
+            queryAssignments = {key:value for key, value in sample[0].items() if key in queryVariables}
+            frozenQueryAssignments = frozenset(queryAssignments.items())
+            if frozenQueryAssignments not in sampleFrequency:
+                sampleFrequency[frozenQueryAssignments] = sample[1]
+            else:
+                sampleFrequency[frozenQueryAssignments] += sample[1]
+        result = Factor(queryVariables,evidenceDict.keys(),bayesNet.getReducedVariableDomains(evidenceDict))
+        probSum = sum(sampleFrequency.values())
+        for key,value in sampleFrequency.items():
+            result.setProbability(dict(dict(key).items()+evidenceDict.items()),value/probSum)
+        return result
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
     return inferenceByLikelihoodWeightingSampling
 
